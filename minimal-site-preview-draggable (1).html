@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Site</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Inter', 'Roboto', 'Arial', sans-serif;
+            background: #ffffff;
+            color: #000000;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Homepage */
+        #home-page {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder {
+            position: absolute;
+            cursor: move;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            width: 120px;
+        }
+
+        .folder.dragging {
+            opacity: 0.7;
+        }
+
+        .folder-icon {
+            width: 96px;
+            height: 96px;
+            margin-bottom: 1px;
+        }
+
+        .folder-name {
+            font-size: 16.5px;
+            font-weight: 400;
+            text-align: center;
+            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+
+        /* Inner pages */
+        .inner-page {
+            display: none;
+            min-height: 100vh;
+            padding: 32px 24px;
+            background: #ffffff;
+            overflow-y: auto;
+        }
+
+        .inner-page.active {
+            display: block;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            font-size: 14px;
+            margin-bottom: 64px;
+            padding-top: 32px;
+        }
+
+        .top-nav a {
+            color: #000000;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .top-nav a:hover {
+            color: #666666;
+        }
+
+        .top-nav span {
+            color: #666666;
+        }
+
+        .content {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .content h1 {
+            font-size: 32px;
+            margin-bottom: 48px;
+            font-weight: 400;
+            text-align: left;
+        }
+
+        .post {
+            margin-bottom: 48px;
+        }
+
+        .post h2 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .post h2 a {
+            color: #000000;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .post h2 a:hover {
+            color: #666666;
+        }
+
+        .post time {
+            display: block;
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 12px;
+        }
+
+        .post p {
+            color: #666666;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .tags {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 1200px;
+        }
+
+        .photo-item {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .photo-cover {
+            aspect-ratio: 1;
+            background: #f5f5f5;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+            transition: opacity 0.2s ease;
+        }
+
+        .photo-item:hover .photo-cover {
+            opacity: 0.9;
+        }
+
+        .photo-item h2 {
+            font-size: 14px;
+            font-weight: 400;
+            margin-bottom: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .photo-item:hover h2 {
+            color: #666666;
+        }
+
+        .photo-item time,
+        .photo-item .location {
+            font-size: 12px;
+            color: #666666;
+            display: block;
+        }
+
+        .consumption-section {
+            margin-bottom: 48px;
+        }
+
+        .consumption-section h2 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 24px;
+        }
+
+        .consumption-item {
+            margin-bottom: 16px;
+        }
+
+        .consumption-item strong {
+            font-weight: 500;
+        }
+
+        .consumption-item a {
+            color: #000000;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .consumption-item a:hover {
+            color: #666666;
+        }
+
+        .creator {
+            color: #666666;
+        }
+
+        .status {
+            font-size: 12px;
+            color: #666666;
+            margin-left: 8px;
+        }
+
+        .notes {
+            font-size: 14px;
+            color: #666666;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 640px) {
+            .content h1 {
+                font-size: 28px;
+            }
+
+            .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Homepage - Draggable Folders -->
+    <div id="home-page">
+        <div class="folder" data-page="musings" style="left: 50px; top: 50px;">
+            <svg class="folder-icon" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- macOS style folder -->
+                <defs>
+                    <linearGradient id="folderGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#8ab4f8;stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-color:#5a8fd8;stop-opacity:0.9" />
+                    </linearGradient>
+                </defs>
+                <!-- Folder back -->
+                <path d="M 16 32 L 16 96 C 16 100 18 104 22 104 L 106 104 C 110 104 112 100 112 96 L 112 44 C 112 40 110 36 106 36 L 58 36 L 50 28 L 22 28 C 18 28 16 30 16 32 Z" fill="url(#folderGrad1)" stroke="#4a7fb8" stroke-width="1.5"/>
+                <!-- Folder tab -->
+                <path d="M 16 32 L 16 40 L 54 40 L 58 36 L 50 28 L 22 28 C 18 28 16 30 16 32 Z" fill="#a8c7fa" opacity="0.8"/>
+            </svg>
+            <div class="folder-name">musings</div>
+        </div>
+
+        <div class="folder" data-page="inspiration" style="left: 180px; top: 50px;">
+            <svg class="folder-icon" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="folderGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#8ab4f8;stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-color:#5a8fd8;stop-opacity:0.9" />
+                    </linearGradient>
+                </defs>
+                <path d="M 16 32 L 16 96 C 16 100 18 104 22 104 L 106 104 C 110 104 112 100 112 96 L 112 44 C 112 40 110 36 106 36 L 58 36 L 50 28 L 22 28 C 18 28 16 30 16 32 Z" fill="url(#folderGrad2)" stroke="#4a7fb8" stroke-width="1.5"/>
+                <path d="M 16 32 L 16 40 L 54 40 L 58 36 L 50 28 L 22 28 C 18 28 16 30 16 32 Z" fill="#a8c7fa" opacity="0.8"/>
+            </svg>
+            <div class="folder-name">inspiration</div>
+        </div>
+
+        <div class="folder" data-page="wild" style="left: 50px; top: 180px;">
+            <svg class="folder-icon" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="folderGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#8ab4f8;stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-color:#5a8fd8;stop-opacity:0.9" />
+                    </linearGradient>
+                </defs>
+                <path d="M 16 32 L 16 96 C 16 100 18 104 22 104 L 106 104 C 110 104 112 100 112 96 L 112 44 C 112 40 110 36 106 36 L 58 36 L 50 28 L 22 28 C 18 28 16 30 16 32 Z" fill="url(#folderGrad3)" stroke="#4a7fb8" stroke-width="1.5"/>
+                <path d="M 16 32 L 16 40 L 54 40 L 58 36 L 50 28 L 22 28 C 18 28 16 30 16 32 Z" fill="#a8c7fa" opacity="0.8"/>
+            </svg>
+            <div class="folder-name">in the wild</div>
+        </div>
+
+        <div class="folder" data-page="projects" style="left: 180px; top: 180px;">
+            <svg class="folder-icon" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="folderGrad4" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#8ab4f8;stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-color:#5a8fd8;stop-opacity:0.9" />
+                    </linearGradient>
+                </defs>
+                <path d="M 16 32 L 16 96 C 16 100 18 104 22 104 L 106 104 C 110 104 112 100 112 96 L 112 44 C 112 40 110 36 106 36 L 58 36 L 50 28 L 22 28 C 18 28 16 30 16 32 Z" fill="url(#folderGrad4)" stroke="#4a7fb8" stroke-width="1.5"/>
+                <path d="M 16 32 L 16 40 L 54 40 L 58 36 L 50 28 L 22 28 C 18 28 16 30 16 32 Z" fill="#a8c7fa" opacity="0.8"/>
+            </svg>
+            <div class="folder-name">projects</div>
+        </div>
+    </div>
+
+    <!-- Audio Element -->
+    <!-- Musings Page -->
+    <div id="musings-page" class="inner-page">
+        <nav class="top-nav">
+            <a href="#" onclick="showPage('home'); return false;">home</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('musings'); return false;">musings</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('inspiration'); return false;">inspiration</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('wild'); return false;">wild</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('projects'); return false;">projects</a>
+        </nav>
+        
+        <div class="content">
+            <h1>Musings</h1>
+            
+            <article class="post">
+                <h2><a href="#">On Simplicity</a></h2>
+                <time>January 10, 2025</time>
+                <p>Why less is often more, and how removing things can add value rather than subtract it.</p>
+                <div class="tags">
+                    <span class="tag">#design</span>
+                    <span class="tag">#thoughts</span>
+                </div>
+            </article>
+
+            <article class="post">
+                <h2><a href="#">Notes on Attention</a></h2>
+                <time>January 5, 2025</time>
+                <p>Thoughts on where we direct our focus and why it matters more than we think.</p>
+                <div class="tags">
+                    <span class="tag">#thoughts</span>
+                    <span class="tag">#productivity</span>
+                </div>
+            </article>
+
+            <article class="post">
+                <h2><a href="#">Building in Public</a></h2>
+                <time>December 28, 2024</time>
+                <p>On the value of sharing work before it's finished and what you learn from the process.</p>
+                <div class="tags">
+                    <span class="tag">#creativity</span>
+                    <span class="tag">#thoughts</span>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <!-- Inspiration Page -->
+    <div id="inspiration-page" class="inner-page">
+        <nav class="top-nav">
+            <a href="#" onclick="showPage('home'); return false;">home</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('musings'); return false;">musings</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('inspiration'); return false;">inspiration</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('wild'); return false;">wild</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('projects'); return false;">projects</a>
+        </nav>
+        
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <!-- Tabs -->
+            <div style="display: flex; gap: 32px; border-bottom: 2px solid #e5e5e5; margin-bottom: 24px;">
+                <button onclick="switchShelf('books')" id="books-tab" style="background: none; border: none; padding: 12px 0; font-size: 14px; font-weight: 600; color: #4a9d5f; border-bottom: 3px solid #4a9d5f; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;">Bookshelf</button>
+                <button onclick="switchShelf('movies')" id="movies-tab" style="background: none; border: none; padding: 12px 0; font-size: 14px; font-weight: 400; color: #999; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;">Movie Shelf</button>
+            </div>
+
+            <!-- Search Bar -->
+            <input type="text" placeholder="Search books by title or author..." style="width: 100%; padding: 14px 16px; margin-bottom: 20px; border: 1px solid #d0d0d0; border-radius: 4px; font-size: 14px; font-family: 'Courier New', monospace; color: #999;">
+
+            <!-- Filters -->
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px;">
+                <span style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Filter:</span>
+                <button style="padding: 6px 14px; background: #4a9d5f; color: white; border: none; border-radius: 3px; font-size: 12px; cursor: pointer; text-transform: uppercase; font-weight: 600;">All</button>
+                <button style="padding: 6px 14px; background: white; color: #4a9d5f; border: 1px solid #4a9d5f; border-radius: 3px; font-size: 12px; cursor: pointer;">★ Life-Changing</button>
+                <button style="padding: 6px 14px; background: white; color: #4a9d5f; border: 1px solid #4a9d5f; border-radius: 3px; font-size: 12px; cursor: pointer;">♥ Liked</button>
+                <span style="margin-left: auto; font-size: 12px; color: #999;">134 BOOKS</span>
+            </div>
+
+            <!-- Bookshelf Grid -->
+            <div id="books-shelf" style="display: grid; grid-template-columns: 1fr; gap: 40px;">
+                <!-- 2026 Section -->
+                <div>
+                    <h2 style="font-size: 18px; font-weight: 600; color: #4a9d5f; margin-bottom: 24px;">2026</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 24px 16px;">
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 2px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                            <div style="position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 12px;">♥</div>
+                        </div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 2px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                            <div style="position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 12px;">★</div>
+                        </div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                    </div>
+                </div>
+
+                <!-- 2025 Section -->
+                <div>
+                    <h2 style="font-size: 18px; font-weight: 600; color: #4a9d5f; margin-bottom: 24px;">2025</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 24px 16px;">
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Movie Shelf Grid (hidden by default) -->
+            <div id="movies-shelf" style="display: none; grid-template-columns: 1fr; gap: 40px;">
+                <!-- 2026 Section -->
+                <div>
+                    <h2 style="font-size: 18px; font-weight: 600; color: #4a9d5f; margin-bottom: 24px;">2026</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 24px 16px;">
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                    </div>
+                </div>
+
+                <!-- 2025 Section -->
+                <div>
+                    <h2 style="font-size: 18px; font-weight: 600; color: #4a9d5f; margin-bottom: 24px;">2025</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 24px 16px;">
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                        <div style="aspect-ratio: 2/3; background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wild Page -->
+    <div id="wild-page" class="inner-page">
+        <nav class="top-nav">
+            <a href="#" onclick="showPage('home'); return false;">home</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('musings'); return false;">musings</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('inspiration'); return false;">inspiration</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('wild'); return false;">wild</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('projects'); return false;">projects</a>
+        </nav>
+        
+        <div class="content" style="max-width: 1200px;">
+            <h1>In the Wild</h1>
+            
+            <div class="photo-grid">
+                <a href="#" class="photo-item">
+                    <div class="photo-cover">[image]</div>
+                    <h2>Morning Light</h2>
+                    <time>January 8, 2025</time>
+                </a>
+
+                <a href="#" class="photo-item">
+                    <div class="photo-cover">[image]</div>
+                    <h2>Desert Highway</h2>
+                    <time>December 15, 2024</time>
+                </a>
+
+                <a href="#" class="photo-item">
+                    <div class="photo-cover">[image]</div>
+                    <h2>Photo 3</h2>
+                    <time>December 1, 2024</time>
+                </a>
+
+                <a href="#" class="photo-item">
+                    <div class="photo-cover">[image]</div>
+                    <h2>Photo 4</h2>
+                    <time>November 15, 2024</time>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Page -->
+    <div id="projects-page" class="inner-page">
+        <nav class="top-nav">
+            <a href="#" onclick="showPage('home'); return false;">home</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('musings'); return false;">musings</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('inspiration'); return false;">inspiration</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('wild'); return false;">wild</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('projects'); return false;">projects</a>
+        </nav>
+        
+        <div class="content">
+            <h1>Projects</h1>
+            
+            <article class="post">
+                <h2><a href="#">Minimal Task Manager</a></h2>
+                <time>November 15, 2024</time>
+                <p>A stripped-down todo app that only does the essential things. No features, no fluff.</p>
+                <div class="tags">
+                    <span class="tag">#web</span>
+                    <span class="tag">#tools</span>
+                </div>
+            </article>
+
+            <article class="post">
+                <h2><a href="#">Reading Tracker</a></h2>
+                <time>September 22, 2024</time>
+                <p>Simple app to track books I'm reading. Replaces the spreadsheet I was using before.</p>
+                <div class="tags">
+                    <span class="tag">#web</span>
+                    <span class="tag">#personal</span>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <script>
+        let draggedElement = null;
+        let offsetX = 0;
+        let offsetY = 0;
+        let clickStartTime = 0;
+        let hasMoved = false;
+
+        function showPage(pageName) {
+            document.getElementById('home-page').style.display = 'none';
+            document.querySelectorAll('.inner-page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            if (pageName === 'home') {
+                document.getElementById('home-page').style.display = 'block';
+            } else {
+                document.getElementById(pageName + '-page').classList.add('active');
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        function switchShelf(shelf) {
+            const booksTab = document.getElementById('books-tab');
+            const moviesTab = document.getElementById('movies-tab');
+            const booksShelf = document.getElementById('books-shelf');
+            const moviesShelf = document.getElementById('movies-shelf');
+
+            if (shelf === 'books') {
+                booksTab.style.color = '#4a9d5f';
+                booksTab.style.fontWeight = '600';
+                booksTab.style.borderBottom = '3px solid #4a9d5f';
+                moviesTab.style.color = '#999';
+                moviesTab.style.fontWeight = '400';
+                moviesTab.style.borderBottom = 'none';
+                booksShelf.style.display = 'grid';
+                moviesShelf.style.display = 'none';
+            } else {
+                moviesTab.style.color = '#4a9d5f';
+                moviesTab.style.fontWeight = '600';
+                moviesTab.style.borderBottom = '3px solid #4a9d5f';
+                booksTab.style.color = '#999';
+                booksTab.style.fontWeight = '400';
+                booksTab.style.borderBottom = 'none';
+                moviesShelf.style.display = 'grid';
+                booksShelf.style.display = 'none';
+            }
+        }
+
+        // Drag functionality
+        document.querySelectorAll('.folder').forEach(folder => {
+            folder.addEventListener('mousedown', (e) => {
+                clickStartTime = Date.now();
+                hasMoved = false;
+                draggedElement = folder;
+                const rect = folder.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                folder.classList.add('dragging');
+                e.preventDefault();
+            });
+
+            folder.addEventListener('touchstart', (e) => {
+                clickStartTime = Date.now();
+                hasMoved = false;
+                draggedElement = folder;
+                const rect = folder.getBoundingClientRect();
+                const touch = e.touches[0];
+                offsetX = touch.clientX - rect.left;
+                offsetY = touch.clientY - rect.top;
+                folder.classList.add('dragging');
+                e.preventDefault();
+            });
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (draggedElement) {
+                hasMoved = true;
+                const x = e.clientX - offsetX;
+                const y = e.clientY - offsetY;
+                draggedElement.style.left = Math.max(0, Math.min(x, window.innerWidth - 120)) + 'px';
+                draggedElement.style.top = Math.max(0, Math.min(y, window.innerHeight - 120)) + 'px';
+            }
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (draggedElement) {
+                hasMoved = true;
+                const touch = e.touches[0];
+                const x = touch.clientX - offsetX;
+                const y = touch.clientY - offsetY;
+                draggedElement.style.left = Math.max(0, Math.min(x, window.innerWidth - 120)) + 'px';
+                draggedElement.style.top = Math.max(0, Math.min(y, window.innerHeight - 120)) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+                
+                // Only open folder if it was a click (not dragged) and was quick
+                const clickDuration = Date.now() - clickStartTime;
+                if (!hasMoved && clickDuration < 300) {
+                    const page = draggedElement.getAttribute('data-page');
+                    showPage(page);
+                }
+                
+                draggedElement = null;
+            }
+        });
+
+        document.addEventListener('touchend', (e) => {
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+                
+                const clickDuration = Date.now() - clickStartTime;
+                if (!hasMoved && clickDuration < 300) {
+                    const page = draggedElement.getAttribute('data-page');
+                    showPage(page);
+                }
+                
+                draggedElement = null;
+            }
+        });
+
+        // Initialize
+        showPage('home');
+
+    </script>
+</body>
+</html>
