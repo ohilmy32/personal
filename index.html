@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Site</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Inter', 'Roboto', 'Arial', sans-serif;
+            background: #ffffff;
+            color: #000000;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Homepage */
+        #home-page {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder {
+            position: absolute;
+            cursor: move;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            width: 120px;
+        }
+
+        .folder.dragging {
+            opacity: 0.7;
+        }
+
+        .folder-icon {
+            width: 96px;
+            height: 96px;
+            margin-bottom: 1px;
+        }
+
+        .folder-name {
+            font-size: 16.5px;
+            font-weight: 400;
+            text-align: center;
+            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+
+        /* Inner pages */
+        .inner-page {
+            display: none;
+            min-height: 100vh;
+            padding: 32px 24px;
+            background: #ffffff;
+            overflow-y: auto;
+        }
+
+        .inner-page.active {
+            display: block;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            font-size: 14px;
+            margin-bottom: 64px;
+            padding-top: 32px;
+        }
+
+        .top-nav a {
+            color: #000000;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .top-nav a:hover {
+            color: #666666;
+        }
+
+        .top-nav span {
+            color: #666666;
+        }
+
+        .content {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .content h1 {
+            font-size: 32px;
+            margin-bottom: 48px;
+            font-weight: 400;
+            text-align: left;
+        }
+
+        .post {
+            margin-bottom: 48px;
+        }
+
+        .post h2 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .post h2 a {
+            color: #000000;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .post h2 a:hover {
+            color: #666666;
+        }
+
+        .post time {
+            display: block;
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 12px;
+        }
+
+        .post p {
+            color: #666666;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .tags {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 1200px;
+        }
+
+        .photo-item {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .photo-cover {
+            aspect-ratio: 1;
+            background: #f5f5f5;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+            transition: opacity 0.2s ease;
+            overflow: hidden;
+        }
+
+        .photo-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-item:hover .photo-cover {
+            opacity: 0.9;
+        }
+
+        .photo-item h2 {
+            font-size: 14px;
+            font-weight: 400;
+            margin-bottom: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .photo-item:hover h2 {
+            color: #666666;
+        }
+
+        .photo-item time,
+        .photo-item .location {
+            font-size: 12px;
+            color: #666666;
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .content h1 {
+                font-size: 28px;
+            }
+
+            .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-nav {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .folder {
+                width: 80px;
+            }
+
+            .folder-icon {
+                width: 64px;
+                height: 64px;
+            }
+
+            .folder-name {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Homepage -->
+    <div id="home-page">
+        <div class="folder" data-page="musings" style="top: 40%; left: 15%;">
+            <svg class="folder-icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="12" y="30" width="72" height="48" rx="4" fill="#FFD93D" stroke="#000000" stroke-width="2"/>
+                <path d="M12 34C12 31.7909 13.7909 30 16 30H38L44 24H16C13.7909 24 12 25.7909 12 28V34Z" fill="#FFD93D" stroke="#000000" stroke-width="2"/>
+            </svg>
+            <span class="folder-name">musings</span>
+        </div>
+
+        <div class="folder" data-page="inspiration" style="top: 40%; left: 40%;">
+            <svg class="folder-icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="12" y="30" width="72" height="48" rx="4" fill="#FFD93D" stroke="#000000" stroke-width="2"/>
+                <path d="M12 34C12 31.7909 13.7909 30 16 30H38L44 24H16C13.7909 24 12 25.7909 12 28V34Z" fill="#FFD93D" stroke="#000000" stroke-width="2"/>
+            </svg>
+            <span class="folder-name">inspiration</span>
+        </div>
+
+        <div class="folder" data-page="wild" style="top: 40%; left: 65%;">
+            <svg class="folder-icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="12" y="30" width="72" height="48" rx="4" fill="#FFD93D" stroke="#000000" stroke-width="2"/>
+                <path d="M12 34C12 31.7909 13.7909 30 16 30H38L44 24H16C13.7909 24 12 25.7909 12 28V34Z" fill="#FFD93D" stroke="#000000" stroke-width="2"/>
+            </svg>
+            <span class="folder-name">wild</span>
+        </div>
+
+        <div class="folder" data-page="projects" style="top: 60%; left: 27%;">
+            <svg class="folder-icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="12" y="30" width="72" height="48" rx="4" fill="#FFD93D" stroke="#000000" stroke-width="2"/>
+                <path d="M12 34C12 31.7909 13.7909 30 16 30H38L44 24H16C13.7909 24 12 25.7909 12 28V34Z" fill="#FFD93D" stroke="#000000" stroke-width="2"/>
+            </svg>
+            <span class="folder-name">projects</span>
+        </div>
+    </div>
+
+    <!-- Musings Page -->
+    <div id="musings-page" class="inner-page">
+        <nav class="top-nav">
+            <a href="#" onclick="showPage('home'); return false;">home</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('musings'); return false;">musings</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('inspiration'); return false;">inspiration</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('wild'); return false;">wild</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('projects'); return false;">projects</a>
+        </nav>
+        
+        <div class="content">
+            <h1>Musings</h1>
+            <div id="musings-content"></div>
+        </div>
+    </div>
+
+    <!-- Inspiration Page -->
+    <div id="inspiration-page" class="inner-page">
+        <nav class="top-nav">
+            <a href="#" onclick="showPage('home'); return false;">home</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('musings'); return false;">musings</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('inspiration'); return false;">inspiration</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('wild'); return false;">wild</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('projects'); return false;">projects</a>
+        </nav>
+        
+        <div class="content">
+            <h1>Inspiration</h1>
+            <p style="color: #666; margin-bottom: 32px;">What I'm reading, watching, listening to...</p>
+            <div id="inspiration-content"></div>
+        </div>
+    </div>
+
+    <!-- Wild Page -->
+    <div id="wild-page" class="inner-page">
+        <nav class="top-nav">
+            <a href="#" onclick="showPage('home'); return false;">home</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('musings'); return false;">musings</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('inspiration'); return false;">inspiration</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('wild'); return false;">wild</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('projects'); return false;">projects</a>
+        </nav>
+        
+        <div class="content" style="max-width: 1200px;">
+            <h1>In the Wild</h1>
+            <div id="wild-content" class="photo-grid"></div>
+        </div>
+    </div>
+
+    <!-- Projects Page -->
+    <div id="projects-page" class="inner-page">
+        <nav class="top-nav">
+            <a href="#" onclick="showPage('home'); return false;">home</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('musings'); return false;">musings</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('inspiration'); return false;">inspiration</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('wild'); return false;">wild</a>
+            <span>/</span>
+            <a href="#" onclick="showPage('projects'); return false;">projects</a>
+        </nav>
+        
+        <div class="content">
+            <h1>Projects</h1>
+            <div id="projects-content"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

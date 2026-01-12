@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Minimal Task Manager",
+    "date": "November 15, 2024",
+    "description": "A stripped-down todo app that only does the essential things. No features, no fluff.",
+    "link": "",
+    "tags": ["web", "tools"]
+  },
+  {
+    "title": "Reading Tracker",
+    "date": "September 22, 2024",
+    "description": "Simple app to track books I'm reading. Replaces the spreadsheet I was using before.",
+    "link": "",
+    "tags": ["web", "personal"]
+  }
+]

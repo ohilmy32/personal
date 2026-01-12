@@ -1,0 +1,31 @@
+{
+  "books": [
+    {
+      "title": "The Practice",
+      "author": "Seth Godin",
+      "status": "reading",
+      "notes": "Love the emphasis on showing up consistently rather than waiting for inspiration."
+    },
+    {
+      "title": "Atomic Habits",
+      "author": "James Clear",
+      "status": "finished",
+      "notes": "Changed how I think about small improvements."
+    }
+  ],
+  "movies": [
+    {
+      "title": "Everything Everywhere All at Once",
+      "director": "Daniels",
+      "year": "2022",
+      "notes": "Chaotic in the best way possible."
+    }
+  ],
+  "music": [
+    {
+      "title": "Tycho",
+      "artist": "Various albums",
+      "notes": "Perfect for focused work."
+    }
+  ]
+}
