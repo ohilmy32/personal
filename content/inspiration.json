@@ -1,8 +1,8 @@
 {
   "books": [
     {
-      "title": "The Practice",
-      "author": "Seth Godin",
+      "title": "Rememberance of Death",
+      "author": "Ghazali",
       "status": "reading",
       "notes": "Love the emphasis on showing up consistently rather than waiting for inspiration."
     },
@@ -21,11 +21,4 @@
       "notes": "Chaotic in the best way possible."
     }
   ],
-  "music": [
-    {
-      "title": "Tycho",
-      "artist": "Various albums",
-      "notes": "Perfect for focused work."
-    }
-  ]
-}
+  
